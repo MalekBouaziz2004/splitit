@@ -1,0 +1,62 @@
+### Variables
+@baseUrl = http://localhost:3000
+@token = paste_your_token_here_after_login
+
+###############################################
+# 1. Health checks (Phase 1)
+###############################################
+
+### Check API is running
+GET {{baseUrl}}/
+
+### Check DB connection
+GET {{baseUrl}}/api/db-test
+
+###############################################
+# 2. Auth (Phase 2)
+###############################################
+
+### Register a new user
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "malek",
+  "email": "malek@test.com",
+  "password": "secret123"
+}
+
+### Try to register the SAME user again (should fail with 409)
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "malek",
+  "email": "malek@test.com",
+  "password": "secret123"
+}
+
+### Login with correct password
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "malek@test.com",
+  "password": "secret123"
+}
+
+### Login with WRONG password (should fail with 401)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "malek@test.com",
+  "password": "wrongpassword"
+}
+
+### Get current user profile (protected — needs token)
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{token}}
+
+### Get profile WITHOUT token (should fail with 401)
+GET {{baseUrl}}/api/auth/me
