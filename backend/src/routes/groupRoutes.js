@@ -6,6 +6,12 @@ import {
   addMember,
   removeMember,
 } from "../controllers/groupController.js";
+import {
+  createExpense,
+  listExpenses,
+  deleteExpense,
+  getBalances,
+} from "../controllers/expenseController.js";
 import { authenticate } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -21,5 +27,13 @@ router.get("/:id", getGroupById);
 // /api/groups/:id/members
 router.post("/:id/members", addMember);
 router.delete("/:id/members/:userId", removeMember);
+
+// /api/groups/:id/expenses
+router.post("/:id/expenses", createExpense);
+router.get("/:id/expenses", listExpenses);
+router.delete("/:id/expenses/:expenseId", deleteExpense);
+
+// /api/groups/:id/balances
+router.get("/:id/balances", getBalances);
 
 export default router;
