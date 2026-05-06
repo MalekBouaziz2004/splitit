@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import pool from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
+import groupRoutes from "./routes/groupRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -30,6 +31,7 @@ app.get("/api/db-test", async (req, res) => {
   }
 });
 app.use("/api/auth", authRoutes);
+app.use("/api/groups", groupRoutes);
 // Start server
 app.listen(PORT, () => {
   console.log(` Server running on http://localhost:${PORT}`);
