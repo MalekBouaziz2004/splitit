@@ -1,6 +1,6 @@
 ### Variables
 @baseUrl = http://localhost:3000
-@token = paste_your_token_here_after_login
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoibWFsZWtAdGVzdC5jb20iLCJpYXQiOjE3Nzc5OTMwNjEsImV4cCI6MTc3ODU5Nzg2MX0.LiQetp-QG7d5ejEiRygmsBggyFCTHTMtJYA1XC2tIyY
 
 ###############################################
 # 1. Health checks (Phase 1)
