@@ -28,14 +28,6 @@ The app calculates each member's net balance and proposes the minimum number of 
 Supports equal splits or custom amounts per participant. Validation ensures the split sums match the total.
 ![Add expense](docs/screenshots/04-add-expense.png)
 
-### REST API
-The backend exposes a JWT-protected REST API tested with the REST Client extension.
-![API test](docs/screenshots/05-api-test.png)
-
-### Database schema
-PostgreSQL with foreign keys, composite primary keys, indexes, and `CHECK` constraints for data integrity.
-![Database schema](docs/screenshots/06-database-schema.png)
-
 ## 🛠️ Tech Stack
 
 **Backend:** Node.js · Express · PostgreSQL (`pg` driver) · JWT · bcrypt
