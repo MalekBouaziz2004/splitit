@@ -31,11 +31,10 @@ POST {{baseUrl}}/api/auth/register
 Content-Type: application/json
 
 {
-  "username": "malek",
-  "email": "malek@test.com",
+  "username": "tom",
+  "email": "tom@test.com",
   "password": "secret123"
 }
-
 ### Login with correct password
 POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
@@ -60,3 +59,141 @@ Authorization: Bearer {{token}}
 
 ### Get profile WITHOUT token (should fail with 401)
 GET {{baseUrl}}/api/auth/me
+
+###############################################
+# 3. Groups (Phase 3)
+###############################################
+
+### Create a new group
+POST {{baseUrl}}/api/groups
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Berlin Trip",
+  "description": "Weekend in Berlin with friends"
+}
+
+### List all my groups
+GET {{baseUrl}}/api/groups
+Authorization: Bearer {{token}}
+
+### Get one group's details (replace 1 with a real id)
+GET {{baseUrl}}/api/groups/1
+Authorization: Bearer {{token}}
+
+### Try to access a non-existent group (should be 403 or 404)
+GET {{baseUrl}}/api/groups/9999
+Authorization: Bearer {{token}}
+
+### Add a member to group 1 by username
+POST {{baseUrl}}/api/groups/1/members
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "username": "sara"
+}
+
+### Add the same member again (should fail with 409)
+POST {{baseUrl}}/api/groups/1/members
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "username": "tom"
+}
+
+### Remove a member from group 1 (replace 2 with real userId)
+DELETE {{baseUrl}}/api/groups/1/members/2
+Authorization: Bearer {{token}}
+
+### Try to access a group I'm not a member of (should be 403)
+# First register a SECOND user, login as them, swap @token, and try GET /api/groups/
+###############################################
+# 4. Expenses & Balances (Phase 4)
+###############################################
+
+# Setup: assume group id = 1, with members
+#   Malek (id 1) — group creator
+#   Sara  (id 2) — member
+#   Tom   (id 3) — member  (register a 3rd user beforehand)
+
+### Add an expense — equal split between all 3
+POST {{baseUrl}}/api/groups/1/expenses
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "amount": 30,
+  "description": "Groceries",
+  "paidBy": 1,
+  "splitType": "equal",
+  "participants": [1, 2, 3]
+}
+
+### Add another expense — Sara paid for dinner
+POST {{baseUrl}}/api/groups/1/expenses
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "amount": 60,
+  "description": "Dinner",
+  "paidBy": 2,
+  "splitType": "equal",
+  "participants": [1, 2, 3]
+}
+
+### Add a custom-split expense
+POST {{baseUrl}}/api/groups/1/expenses
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "amount": 50,
+  "description": "Cinema (different ticket prices)",
+  "paidBy": 1,
+  "splitType": "custom",
+  "participants": [1, 2, 3],
+  "shares": { "1": 20, "2": 15, "3": 15 }
+}
+
+### List all expenses for group 1
+GET {{baseUrl}}/api/groups/1/expenses
+Authorization: Bearer {{token}}
+
+### Get balances + settlement for group 1
+GET {{baseUrl}}/api/groups/1/balances
+Authorization: Bearer {{token}}
+
+### Try invalid expense (negative amount)
+POST {{baseUrl}}/api/groups/1/expenses
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "amount": -5,
+  "description": "Should fail",
+  "paidBy": 1,
+  "splitType": "equal",
+  "participants": [1, 2]
+}
+
+### Try custom split where shares don't add up
+POST {{baseUrl}}/api/groups/1/expenses
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "amount": 100,
+  "description": "Should fail",
+  "paidBy": 1,
+  "splitType": "custom",
+  "participants": [1, 2],
+  "shares": { "1": 30, "2": 30 }
+}
+
+### Delete an expense (replace 1 with real id)
+DELETE {{baseUrl}}/api/groups/1/expenses/1
+Authorization: Bearer {{token}}

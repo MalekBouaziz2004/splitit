@@ -15,5 +15,5 @@ router.post("/", createExpense);
 router.get("/", listExpenses);
 router.delete("/:expenseId", deleteExpense);
 router.get("/balances", getBalances);
-. 
+
 export default router;
