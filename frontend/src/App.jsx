@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import AuthForm from "./AuthForm.jsx";
+import GroupDetailsPage from "./GroupDetailsPage.jsx";
 import GroupsPage from "./GroupsPage.jsx";
 import {
   AUTH_CHANGED_EVENT,
@@ -84,11 +85,13 @@ export default function App() {
         {activeRoute === "groups" ? (
           <GroupsPage notify={notify} />
         ) : isGroupDetail && session.token ? (
-          <div className="card">
-            <button className="link" type="button" onClick={() => navigate("groups")}>← Back to groups</button>
-            <h2>Group details</h2>
-            <p className="muted">The group detail view has not been migrated to React yet.</p>
-          </div>
+          <GroupDetailsPage
+            key={route}
+            groupId={route.split("/")[1]}
+            currentUser={session.user}
+            navigate={navigate}
+            notify={notify}
+          />
         ) : (
           <AuthForm
             key={activeRoute}
