@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "./api/client.js";
+import ExpensesSection from "./ExpensesSection.jsx";
 
 export default function GroupDetailsPage({ groupId, currentUser, navigate, notify }) {
   const [details, setDetails] = useState(null);
@@ -157,6 +158,16 @@ export default function GroupDetailsPage({ groupId, currentUser, navigate, notif
           </form>
           {actionError && <p className="balance-neg" role="alert">{actionError}</p>}
         </div>
+      )}
+
+      {!loading && !loadError && group && (
+        <ExpensesSection
+          groupId={groupId}
+          group={group}
+          members={members}
+          currentUser={currentUser}
+          notify={notify}
+        />
       )}
     </>
   );
