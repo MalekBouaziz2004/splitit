@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import AuthForm from "./AuthForm.jsx";
+import GroupsPage from "./GroupsPage.jsx";
 import {
   AUTH_CHANGED_EVENT,
   clearSession,
@@ -35,7 +36,10 @@ export default function App() {
     };
   }, []);
 
-  const activeRoute = session.token ? "groups" : route === "register" ? "register" : "login";
+  const isGroupDetail = /^group\/\d+$/.test(route);
+  const activeRoute = session.token
+    ? route === "groups" || isGroupDetail ? route : "groups"
+    : route === "register" ? "register" : "login";
   useEffect(() => {
     if (route !== activeRoute) navigate(activeRoute);
   }, [route, activeRoute]);
@@ -78,9 +82,12 @@ export default function App() {
 
       <main>
         {activeRoute === "groups" ? (
+          <GroupsPage notify={notify} />
+        ) : isGroupDetail && session.token ? (
           <div className="card">
-            <h2>Groups</h2>
-            <p className="muted">The groups view has not been migrated to React yet.</p>
+            <button className="link" type="button" onClick={() => navigate("groups")}>← Back to groups</button>
+            <h2>Group details</h2>
+            <p className="muted">The group detail view has not been migrated to React yet.</p>
           </div>
         ) : (
           <AuthForm

@@ -10,7 +10,7 @@ A full-stack web application for tracking shared expenses between friends, roomm
 - ⚖️ **Automatic balance calculation** (who owes whom)
 - 🧮 **Debt simplification algorithm** — minimum number of transfers to settle up
 - 🌐 **Vanilla JS frontend** talking to a REST API (no framework)
-- ⚛️ **Separate React preview** powered by Vite (login and registration migrated)
+- ⚛️ **Separate React preview** powered by Vite (authentication and groups overview migrated)
 
 ## 📸 Screenshots
 
@@ -105,7 +105,7 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173/react.html#login` or `http://localhost:5173/react.html#register` (or use the port printed by Vite). Login and registration use the existing Express API. After either succeeds, `#groups` shows a placeholder; the functional groups and expenses views still live in the Vanilla JS frontend. Vite forwards `/api` requests to `http://localhost:3000`, so the React API client uses the existing Express routes without a hard-coded API origin. The preview uses the existing `frontend/css/style.css`.
+Open `http://localhost:5173/react.html#login` or `http://localhost:5173/react.html#register` (or use the port printed by Vite). Login and registration use the existing Express API. After either succeeds, `#groups` shows the groups overview, where groups can be listed and created. Selecting a group opens `#group/:id`, which is still a placeholder; members, expenses, and balances remain in the Vanilla JS frontend. Vite forwards `/api` requests to `http://localhost:3000`, so the React API client uses the existing Express routes without a hard-coded API origin. The preview uses the existing `frontend/css/style.css`.
 
 To check the React production bundle, run `npm run build` in `frontend/`. The build writes `frontend/dist/react.html` and its assets; the existing `index.html` is not part of this React build.
 
