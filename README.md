@@ -10,6 +10,7 @@ A full-stack web application for tracking shared expenses between friends, roomm
 - ⚖️ **Automatic balance calculation** (who owes whom)
 - 🧮 **Debt simplification algorithm** — minimum number of transfers to settle up
 - 🌐 **Vanilla JS frontend** talking to a REST API (no framework)
+- ⚛️ **Separate React preview** powered by Vite (migration foundation; no product screens yet)
 
 ## 📸 Screenshots
 
@@ -31,8 +32,8 @@ Supports equal splits or custom amounts per participant. Validation ensures the 
 ## 🛠️ Tech Stack
 
 **Backend:** Node.js · Express · PostgreSQL (`pg` driver) · JWT · bcrypt
-**Frontend:** HTML · CSS · Vanilla JavaScript (`fetch` API, hash routing)
-**Dev tools:** nodemon · dotenv · REST Client · Live Server
+**Frontend:** HTML · CSS · Vanilla JavaScript (`fetch` API, hash routing); separate React + Vite preview
+**Dev tools:** nodemon · dotenv · REST Client · Live Server · Vite
 
 ## 📁 Project Structure
 
@@ -48,8 +49,11 @@ splitit/
 │   │   └── server.js       # Entry point
 │   ├── sql/                # Database schema
 │   └── requests.http       # REST Client test file
-├── frontend/               # Vanilla JS SPA
-│   ├── index.html
+├── frontend/               # Vanilla JS SPA and separate React preview
+│   ├── index.html           # Existing Vanilla JS entry
+│   ├── react.html           # React entry
+│   ├── src/                 # React entry and shared API helpers
+│   ├── vite.config.js       # Dev proxy: /api -> Express on port 3000
 │   ├── css/
 │   └── js/
 └── docs/screenshots/       # README assets
@@ -58,7 +62,7 @@ splitit/
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js v18+
+- Node.js v20.19+ or v22.12+ (required by Vite 8)
 - PostgreSQL 14+
 
 ### Setup
@@ -87,7 +91,23 @@ Start the server:
 npm run dev
 ```
 
-In a separate terminal, serve the frontend (e.g., via VS Code's **Live Server** extension on `frontend/index.html`).
+### Run the existing Vanilla JS frontend
+
+Keep the Express server running on `http://localhost:3000`. In a separate terminal, serve `frontend/index.html` with VS Code's **Live Server** extension. Open the URL shown by Live Server (commonly `http://127.0.0.1:5500/frontend/index.html` or `http://127.0.0.1:5500/index.html`, depending on the Live Server root). This remains the functional frontend.
+
+### Run the separate React preview
+
+Keep the same Express server running. In another terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173/react.html` (or the port printed by Vite). This preview currently shows only the React shell; login, groups, and expenses still live in the Vanilla JS frontend. Vite forwards `/api` requests to `http://localhost:3000`, so the React API client uses the existing Express routes without a hard-coded API origin. The preview uses the existing `frontend/css/style.css`.
+
+To check the React production bundle, run `npm run build` in `frontend/`. The build writes `frontend/dist/react.html` and its assets; the existing `index.html` is not part of this React build.
 
 ## 📡 API Endpoints
 
