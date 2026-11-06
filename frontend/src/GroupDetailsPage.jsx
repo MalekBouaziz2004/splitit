@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "./api/client.js";
+import BalancesSection from "./BalancesSection.jsx";
 import ExpensesSection from "./ExpensesSection.jsx";
 
 export default function GroupDetailsPage({ groupId, currentUser, navigate, notify }) {
@@ -10,6 +11,7 @@ export default function GroupDetailsPage({ groupId, currentUser, navigate, notif
   const [memberInput, setMemberInput] = useState("");
   const [actionError, setActionError] = useState(null);
   const [actionPending, setActionPending] = useState(false);
+  const [balanceRefreshKey, setBalanceRefreshKey] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -161,12 +163,17 @@ export default function GroupDetailsPage({ groupId, currentUser, navigate, notif
       )}
 
       {!loading && !loadError && group && (
+        <BalancesSection groupId={groupId} refreshKey={balanceRefreshKey} />
+      )}
+
+      {!loading && !loadError && group && (
         <ExpensesSection
           groupId={groupId}
           group={group}
           members={members}
           currentUser={currentUser}
           notify={notify}
+          onChanged={() => setBalanceRefreshKey((current) => current + 1)}
         />
       )}
     </>

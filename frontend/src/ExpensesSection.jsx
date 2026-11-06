@@ -9,7 +9,7 @@ function formatAmount(value) {
   return Number.isFinite(amount) ? euroFormatter.format(amount) : "—";
 }
 
-export default function ExpensesSection({ groupId, group, members, currentUser, notify }) {
+export default function ExpensesSection({ groupId, group, members, currentUser, notify, onChanged }) {
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
@@ -43,6 +43,7 @@ export default function ExpensesSection({ groupId, group, members, currentUser, 
     setActionError(null);
     notify("Expense added", "success");
     setReloadKey((current) => current + 1);
+    onChanged();
   }
 
   async function handleDelete(expenseId) {
@@ -54,6 +55,7 @@ export default function ExpensesSection({ groupId, group, members, currentUser, 
       await api(`/api/groups/${groupId}/expenses/${expenseId}`, { method: "DELETE" });
       notify("Expense deleted", "success");
       setReloadKey((current) => current + 1);
+      onChanged();
     } catch (caught) {
       setActionError(caught.message);
     } finally {
