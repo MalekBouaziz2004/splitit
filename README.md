@@ -9,8 +9,7 @@ A full-stack web application for tracking shared expenses between friends, roomm
 - 💸 **Expenses** with equal or custom splits
 - ⚖️ **Automatic balance calculation** (who owes whom)
 - 🧮 **Debt simplification algorithm** — minimum number of transfers to settle up
-- 🌐 **Vanilla JS frontend** talking to a REST API (no framework)
-- ⚛️ **Separate React preview** powered by Vite (authentication, groups, members, expenses, and balances migrated)
+- ⚛️ **React frontend** powered by Vite, with authentication, groups, members, expenses, and balances
 
 ## 📸 Screenshots
 
@@ -32,8 +31,8 @@ Supports equal splits or custom amounts per participant. Validation ensures the 
 ## 🛠️ Tech Stack
 
 **Backend:** Node.js · Express · PostgreSQL (`pg` driver) · JWT · bcrypt
-**Frontend:** HTML · CSS · Vanilla JavaScript (`fetch` API, hash routing); separate React + Vite preview
-**Dev tools:** nodemon · dotenv · REST Client · Live Server · Vite
+**Frontend:** React · Vite · CSS · `fetch` API · hash routing
+**Dev tools:** nodemon · dotenv · REST Client · Vite
 
 ## 📁 Project Structure
 
@@ -49,13 +48,11 @@ splitit/
 │   │   └── server.js       # Entry point
 │   ├── sql/                # Database schema
 │   └── requests.http       # REST Client test file
-├── frontend/               # Vanilla JS SPA and separate React preview
-│   ├── index.html           # Existing Vanilla JS entry
-│   ├── react.html           # React entry
-│   ├── src/                 # React entry and shared API helpers
+├── frontend/               # React SPA
+│   ├── index.html           # React entry
+│   ├── src/                 # React components and API helpers
 │   ├── vite.config.js       # Dev proxy: /api -> Express on port 3000
-│   ├── css/
-│   └── js/
+│   └── css/                 # Shared styles
 └── docs/screenshots/       # README assets
 ```
 
@@ -91,13 +88,9 @@ Start the server:
 npm run dev
 ```
 
-### Run the existing Vanilla JS frontend
+### Run the React frontend
 
-Keep the Express server running on `http://localhost:3000`. In a separate terminal, serve `frontend/index.html` with VS Code's **Live Server** extension. Open the URL shown by Live Server (commonly `http://127.0.0.1:5500/frontend/index.html` or `http://127.0.0.1:5500/index.html`, depending on the Live Server root). This remains the functional frontend.
-
-### Run the separate React preview
-
-Keep the same Express server running. In another terminal:
+Keep the Express server running on `http://localhost:3000`. In another terminal:
 
 ```bash
 cd frontend
@@ -105,9 +98,9 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173/react.html#login` or `http://localhost:5173/react.html#register` (or use the port printed by Vite). Login and registration use the existing Express API. After either succeeds, `#groups` shows the groups overview, where groups can be listed and created. Selecting a group opens `#group/:id` with group details, member management, expenses, balances, and suggested settlement transfers. Equal and custom expense splits are supported. Settlement transfers are suggestions only; the API does not record payments. Vite forwards `/api` requests to `http://localhost:3000`, so the React API client uses the existing Express routes without a hard-coded API origin. The preview uses the existing `frontend/css/style.css`.
+Open `http://localhost:5173/` (or use the port printed by Vite). Direct routes include `/#login`, `/#register`, `/#groups`, and `/#group/:id`. Login and registration use the existing Express API. The groups overview lists and creates groups. Group details include members, expenses, balances, and suggested settlement transfers. Equal and custom expense splits are supported. Settlement transfers are suggestions only; the API does not record payments. Vite forwards `/api` requests to `http://localhost:3000`, so the React API client uses the existing Express routes without a hard-coded API origin. The frontend uses `frontend/css/style.css`.
 
-To check the React production bundle, run `npm run build` in `frontend/`. The build writes `frontend/dist/react.html` and its assets; the existing `index.html` is not part of this React build.
+To check the production bundle, run `npm run build` in `frontend/`. The build writes `frontend/dist/index.html` and its assets.
 
 ## 📡 API Endpoints
 
