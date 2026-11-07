@@ -88,6 +88,23 @@ Start the server:
 npm run dev
 ```
 
+### Optional local PostgreSQL with Docker Compose
+
+Docker Compose starts only PostgreSQL; the Express backend and React frontend still run on the host. Create a `.env` file in the repository root with a local password (this file is ignored by Git):
+
+```env
+SPLITIT_DOCKER_DB_PASSWORD=<your-local-password>
+```
+
+From the repository root, start or stop the database service:
+
+```bash
+docker compose up -d db
+docker compose stop db
+```
+
+To use this database from the host backend, set `DB_HOST=localhost`, `DB_PORT=5433`, `DB_NAME=splitit_docker`, `DB_USER=splitit_dev`, and `DB_PASSWORD` to the password in the root `.env`. These values are separate from the existing `splitit_db` setup. The schema in `backend/sql/schema.sql` is applied only when the Docker volume is first initialized on an empty database. The named volume persists when the service is stopped.
+
 ### Run the React frontend
 
 Keep the Express server running on `http://localhost:3000`. In another terminal:
