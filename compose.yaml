@@ -18,5 +18,21 @@ services:
       timeout: 3s
       retries: 10
 
+  backend:
+    build: ./backend
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: splitit_docker
+      DB_USER: splitit_dev
+      DB_PASSWORD: ${SPLITIT_DOCKER_DB_PASSWORD:?Set SPLITIT_DOCKER_DB_PASSWORD in the root .env file}
+      JWT_SECRET: ${SPLITIT_DOCKER_JWT_SECRET:?Set SPLITIT_DOCKER_JWT_SECRET in the root .env file}
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   splitit_docker_pgdata:

@@ -88,22 +88,29 @@ Start the server:
 npm run dev
 ```
 
-### Optional local PostgreSQL with Docker Compose
+### Optional PostgreSQL and Express with Docker Compose
 
-Docker Compose starts only PostgreSQL; the Express backend and React frontend still run on the host. Create a `.env` file in the repository root with a local password (this file is ignored by Git):
+Docker Compose can run PostgreSQL and the Express backend. The React frontend still runs on the host. Create a `.env` file in the repository root with local secrets (this file is ignored by Git):
 
 ```env
 SPLITIT_DOCKER_DB_PASSWORD=<your-local-password>
+SPLITIT_DOCKER_JWT_SECRET=<your-local-jwt-secret>
 ```
 
-From the repository root, start or stop the database service:
+From the repository root, start only the database, or start the backend together with its database dependency:
 
 ```bash
 docker compose up -d db
-docker compose stop db
+docker compose up -d --build backend
 ```
 
-To use this database from the host backend, set `DB_HOST=localhost`, `DB_PORT=5433`, `DB_NAME=splitit_docker`, `DB_USER=splitit_dev`, and `DB_PASSWORD` to the password in the root `.env`. These values are separate from the existing `splitit_db` setup. The schema in `backend/sql/schema.sql` is applied only when the Docker volume is first initialized on an empty database. The named volume persists when the service is stopped.
+The containerized API is available at `http://localhost:3000`; PostgreSQL is available only on the host loopback interface at `localhost:5433`. To use this database from a host-run backend instead, set `DB_HOST=localhost`, `DB_PORT=5433`, `DB_NAME=splitit_docker`, `DB_USER=splitit_dev`, and `DB_PASSWORD` to the password in the root `.env`. The containerized backend uses `db:5432`. These values are separate from the existing `splitit_db` setup. The schema in `backend/sql/schema.sql` is applied only when the Docker volume is first initialized on an empty database.
+
+Stop both services without deleting the persistent database volume:
+
+```bash
+docker compose stop backend db
+```
 
 ### Run the React frontend
 
