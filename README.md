@@ -88,31 +88,32 @@ Start the server:
 npm run dev
 ```
 
-### Optional PostgreSQL and Express with Docker Compose
+### Run the full stack with Docker Compose
 
-Docker Compose can run PostgreSQL and the Express backend. The React frontend still runs on the host. Create a `.env` file in the repository root with local secrets (this file is ignored by Git):
+Docker Compose runs PostgreSQL, Express, and the production React build. Create a `.env` file in the repository root with local secrets (this file is ignored by Git):
 
 ```env
 SPLITIT_DOCKER_DB_PASSWORD=<your-local-password>
 SPLITIT_DOCKER_JWT_SECRET=<your-local-jwt-secret>
 ```
 
-From the repository root, start only the database, or start the backend together with its database dependency:
+From the repository root, start the full stack (dependencies start automatically). You can also start only the database or backend:
 
 ```bash
+docker compose up -d --build frontend
 docker compose up -d db
 docker compose up -d --build backend
 ```
 
-The containerized API is available at `http://localhost:3000`; PostgreSQL is available only on the host loopback interface at `localhost:5433`. To use this database from a host-run backend instead, set `DB_HOST=localhost`, `DB_PORT=5433`, `DB_NAME=splitit_docker`, `DB_USER=splitit_dev`, and `DB_PASSWORD` to the password in the root `.env`. The containerized backend uses `db:5432`. These values are separate from the existing `splitit_db` setup. The schema in `backend/sql/schema.sql` is applied only when the Docker volume is first initialized on an empty database.
+Open the React app at `http://localhost:5173/`. Its webserver forwards `/api` to the Compose backend internally; the browser stays on `localhost:5173`. The API is also available directly at `http://localhost:3000`; PostgreSQL is available only on the host loopback interface at `localhost:5433`. To use this database from a host-run backend instead, set `DB_HOST=localhost`, `DB_PORT=5433`, `DB_NAME=splitit_docker`, `DB_USER=splitit_dev`, and `DB_PASSWORD` to the password in the root `.env`. The containerized backend uses `db:5432`. These values are separate from the existing `splitit_db` setup. The schema in `backend/sql/schema.sql` is applied only when the Docker volume is first initialized on an empty database.
 
-Stop both services without deleting the persistent database volume:
+Stop the services without deleting the persistent database volume:
 
 ```bash
-docker compose stop backend db
+docker compose stop frontend backend db
 ```
 
-### Run the React frontend
+### Run the React frontend locally with Vite
 
 Keep the Express server running on `http://localhost:3000`. In another terminal:
 
@@ -122,7 +123,7 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173/` (or use the port printed by Vite). Direct routes include `/#login`, `/#register`, `/#groups`, and `/#group/:id`. Login and registration use the existing Express API. The groups overview lists and creates groups. Group details include members, expenses, balances, and suggested settlement transfers. Equal and custom expense splits are supported. Settlement transfers are suggestions only; the API does not record payments. Vite forwards `/api` requests to `http://localhost:3000`, so the React API client uses the existing Express routes without a hard-coded API origin. The frontend uses `frontend/css/style.css`.
+Stop the Compose frontend first if it is using port 5173. Open `http://localhost:5173/` (or use the port printed by Vite). Direct routes include `/#login`, `/#register`, `/#groups`, and `/#group/:id`. Login and registration use the existing Express API. The groups overview lists and creates groups. Group details include members, expenses, balances, and suggested settlement transfers. Equal and custom expense splits are supported. Settlement transfers are suggestions only; the API does not record payments. Vite forwards `/api` requests to `http://localhost:3000`, so the React API client uses the existing Express routes without a hard-coded API origin. The frontend uses `frontend/css/style.css`.
 
 To check the production bundle, run `npm run build` in `frontend/`. The build writes `frontend/dist/index.html` and its assets.
 
