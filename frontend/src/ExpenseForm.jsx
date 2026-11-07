@@ -50,8 +50,8 @@ export default function ExpenseForm({ groupId, members, onCancel, onCreated }) {
       let total = 0;
       for (const member of selectedMembers) {
         const raw = shares[member.id] ?? "";
-        const share = Number(raw);
-        if (!raw.trim() || !Number.isFinite(share) || share < 0) {
+        const share = raw.trim() === "" ? 0 : Number(raw);
+        if (!Number.isFinite(share) || share < 0) {
           return setError(`Enter a valid share for ${member.username}`);
         }
         customShares[member.id] = share;
