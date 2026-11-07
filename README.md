@@ -1,15 +1,14 @@
 # SplitIt — Shared Expense Tracker
 
-A full-stack web application for tracking shared expenses between friends, roommates, or trip groups. Inspired by Splitwise. Built as a learning project to discover JavaScript, Node.js, Express, and PostgreSQL.
+A full-stack expense tracker for friends, roommates, and travel groups. Create a group, share costs, and see who owes whom. The React app and Express API can run together with PostgreSQL through Docker Compose, or separately for local development.
 
 ## ✨ Features
 
-- 🔐 **JWT authentication** with bcrypt-hashed passwords
-- 👥 **Groups** with multiple members and role-based authorization
-- 💸 **Expenses** with equal or custom splits
-- ⚖️ **Automatic balance calculation** (who owes whom)
-- 🧮 **Debt simplification algorithm** — minimum number of transfers to settle up
-- ⚛️ **React frontend** powered by Vite, with authentication, groups, members, expenses, and balances
+- Register and log in with JWT authentication and bcrypt-hashed passwords.
+- Create groups and add or remove members by username or email, subject to group permissions.
+- Record expenses with equal or custom shares; the payer or group creator can delete an expense.
+- View member balances and a suggested settlement plan. Transfers are suggestions; the app does not record payments.
+- Follow hash routes for login, registration, groups, and group details, with loading and error states.
 
 ## 📸 Screenshots
 
@@ -30,15 +29,24 @@ Supports equal splits or custom amounts per participant. Validation ensures the 
 
 ## 🛠️ Tech Stack
 
-**Backend:** Node.js · Express · PostgreSQL (`pg` driver) · JWT · bcrypt
-**Frontend:** React · Vite · CSS · `fetch` API · hash routing
-**Dev tools:** nodemon · dotenv · REST Client · Vite
+- **Frontend:** React · Vite · CSS · `fetch` · hash routing
+- **API:** Node.js · Express · JWT · bcrypt
+- **Database:** PostgreSQL · `pg` driver
+- **Containers:** Docker Compose · Nginx for the production React build
+
+## Architecture
+
+`Browser → Nginx (React assets and /api proxy) → Express API → PostgreSQL`
+
+In Docker, Nginx forwards `/api` to `backend:3000` inside the Compose network; Express connects to `db:5432`. The browser uses relative `/api` URLs on `localhost:5173` and never needs a container hostname. During local frontend development, Vite proxies `/api` to `localhost:3000` instead.
 
 ## 📁 Project Structure
 
 ```
 splitit/
+├── compose.yaml             # PostgreSQL, Express, and React/Nginx services
 ├── backend/                # Node.js + Express API
+│   ├── Dockerfile
 │   ├── src/
 │   │   ├── config/         # DB connection
 │   │   ├── controllers/    # Route handlers
@@ -49,6 +57,8 @@ splitit/
 │   ├── sql/                # Database schema
 │   └── requests.http       # REST Client test file
 ├── frontend/               # React SPA
+│   ├── Dockerfile           # Vite build + Nginx runtime
+│   ├── nginx.conf           # Static files and /api proxy
 │   ├── index.html           # React entry
 │   ├── src/                 # React components and API helpers
 │   ├── vite.config.js       # Dev proxy: /api -> Express on port 3000
@@ -58,74 +68,69 @@ splitit/
 
 ## 🚀 Getting Started
 
-### Prerequisites
-- Node.js v20.19+ or v22.12+ (required by Vite 8)
-- PostgreSQL 14+
+### Full stack with Docker Compose
 
-### Setup
+Requires Docker with Compose. In the repository root, create a Git-ignored `.env` file with your own local values (replace the placeholders; do not commit this file):
 
-```bash
-git clone https://github.com/MalekBouaziz2004/splitit.git
-cd splitit/backend
-npm install
-```
-
-Create the database (e.g., via pgAdmin):
-```sql
-CREATE DATABASE splitit_db;
-```
-
-Then run the schema in `sql/schema.sql` against `splitit_db`.
-
-Copy `.env.example` to `.env` and fill in your credentials:
 ```env
-DB_PASSWORD=your_password
-JWT_SECRET=any_long_random_string
+SPLITIT_DOCKER_DB_PASSWORD=<choose-a-local-password>
+SPLITIT_DOCKER_JWT_SECRET=<choose-a-long-random-secret>
 ```
 
-Start the server:
+Start the three services from the repository root:
+
 ```bash
+docker compose up -d --build
+```
+
+Open **http://localhost:5173/**. The API is also reachable directly at `http://localhost:3000/`; PostgreSQL is bound to `localhost:5433` on the host. Compose uses the separate `splitit_docker` database and a persistent volume. `backend/sql/schema.sql` runs only when that volume is first initialized empty.
+
+Stop the services while retaining the database volume:
+
+```bash
+docker compose stop
+```
+
+### Local development
+
+Requires Node.js v20.19+ or v22.12+ and Docker Compose for the isolated development database. Stop the containerized frontend and backend if they use ports 5173 and 3000, then start only PostgreSQL:
+
+```bash
+docker compose stop frontend backend
+docker compose up -d db
+```
+
+In `backend/.env` (also Git-ignored), set these values. Use the same password you chose for `SPLITIT_DOCKER_DB_PASSWORD` above, and replace the JWT placeholder with a local secret:
+
+```env
+PORT=3000
+DB_HOST=localhost
+DB_PORT=5433
+DB_NAME=splitit_docker
+DB_USER=splitit_dev
+DB_PASSWORD=<same-local-database-password>
+JWT_SECRET=<choose-a-long-random-secret>
+```
+
+Run the API and frontend in separate terminals, from the repository root:
+
+```bash
+cd backend
+npm ci
 npm run dev
 ```
-
-### Run the full stack with Docker Compose
-
-Docker Compose runs PostgreSQL, Express, and the production React build. Create a `.env` file in the repository root with local secrets (this file is ignored by Git):
-
-```env
-SPLITIT_DOCKER_DB_PASSWORD=<your-local-password>
-SPLITIT_DOCKER_JWT_SECRET=<your-local-jwt-secret>
-```
-
-From the repository root, start the full stack (dependencies start automatically). You can also start only the database or backend:
-
-```bash
-docker compose up -d --build frontend
-docker compose up -d db
-docker compose up -d --build backend
-```
-
-Open the React app at `http://localhost:5173/`. Its webserver forwards `/api` to the Compose backend internally; the browser stays on `localhost:5173`. The API is also available directly at `http://localhost:3000`; PostgreSQL is available only on the host loopback interface at `localhost:5433`. To use this database from a host-run backend instead, set `DB_HOST=localhost`, `DB_PORT=5433`, `DB_NAME=splitit_docker`, `DB_USER=splitit_dev`, and `DB_PASSWORD` to the password in the root `.env`. The containerized backend uses `db:5432`. These values are separate from the existing `splitit_db` setup. The schema in `backend/sql/schema.sql` is applied only when the Docker volume is first initialized on an empty database.
-
-Stop the services without deleting the persistent database volume:
-
-```bash
-docker compose stop frontend backend db
-```
-
-### Run the React frontend locally with Vite
-
-Keep the Express server running on `http://localhost:3000`. In another terminal:
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
-Stop the Compose frontend first if it is using port 5173. Open `http://localhost:5173/` (or use the port printed by Vite). Direct routes include `/#login`, `/#register`, `/#groups`, and `/#group/:id`. Login and registration use the existing Express API. The groups overview lists and creates groups. Group details include members, expenses, balances, and suggested settlement transfers. Equal and custom expense splits are supported. Settlement transfers are suggestions only; the API does not record payments. Vite forwards `/api` requests to `http://localhost:3000`, so the React API client uses the existing Express routes without a hard-coded API origin. The frontend uses `frontend/css/style.css`.
+Open `http://localhost:5173/` (or Vite's printed port). Routes include `/#login`, `/#register`, `/#groups`, and `/#group/:id`. From the repository root, stop the development database with `docker compose stop db` when finished. To check the frontend bundle separately, run `npm run build` in `frontend/`.
 
-To check the production bundle, run `npm run build` in `frontend/`. The build writes `frontend/dist/index.html` and its assets.
+### Verification status
+
+Previously verified: the React production build; `docker compose config -q`; Docker image builds and container starts; HTTP 200 from the frontend at `/`, its built JavaScript asset, the backend at `/`, and `/api/db-test` through both the backend and the Nginx proxy. The isolated Docker database was observed healthy with the five schema tables present and empty at initialization. **A complete end-to-end test of registration, login, groups, members, expenses, balances, permissions, and browser navigation against a test database is still outstanding.** No new tests were run for this README update.
 
 ## 📡 API Endpoints
 
@@ -153,6 +158,7 @@ This was my first JavaScript project, built phase by phase as a learning exercis
 - **Phase 3** — REST API design, many-to-many relationships, SQL JOINs, authentication vs authorization
 - **Phase 4** — Money handling with `NUMERIC`, SQL transactions, service-layer pattern, greedy debt-simplification algorithm
 - **Phase 5** — DOM manipulation, `fetch` API, hash-based SPA routing, XSS prevention
+- **Phase 6** — migration to React and Vite, plus Docker Compose deployment with Nginx
 
 ## 👤 Author
 
